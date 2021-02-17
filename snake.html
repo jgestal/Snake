@@ -1,0 +1,223 @@
+<!-- 
+    --------------------------
+    Snake Game
+    --------------------------
+    HTML & Javascript
+
+    Author: Juan Gestal
+    Email: juan@gestal.es
+        
+    MIT License.
+-->
+<html>
+    <body>
+        <h1>Snake</h1>
+        <p id="score">0</p>
+    </body>
+<script>
+
+    // Create a canvas
+    var canvas = document.createElement("canvas")
+    canvas.width = 600
+    canvas.height = 400
+    document.body.appendChild(canvas)
+    var ctx = canvas.getContext("2d")
+
+    // Block Size
+    var bs = 20
+
+    // Number of cols and rows 
+    var cols = canvas.width / bs
+    var rows = canvas.height / bs
+
+    // Score Marker
+    var scoreMarker = document.getElementById('score')
+    var score
+
+    // Snake
+    var snakePos
+    var snakeDir
+    var snakeTrail
+    var snakeSize
+
+    // Apple
+    var applePos;
+
+    // ----------------
+    // INIT 
+    // ----------------
+
+    function init() {
+        setInterval(update,200)
+        start()
+    }
+    init(); // Init is only called once
+
+    // ----------------
+    // START & UPDATE
+    // ----------------
+   
+    function start() {
+        score = 0
+        scoreMarker.textContent = score
+        startSnake()
+        newApple()
+    }
+
+    function update() {
+        moveSnake()
+        paint()
+    }
+
+    // ----------------
+    // SNAKE FUNCTIONS
+    // ----------------
+   
+    function startSnake() {
+        snakePos = {x: 10, y: 10}
+        snakeDir = {x: 1, y: 0}
+        snakeTrail = []
+        snakeSize = 5
+    }
+
+    function moveSnake() {
+
+        snakePos.x += snakeDir.x;
+        snakePos.y += snakeDir.y;
+
+        // Snake eats Apple
+        if (snakePos.x == applePos.x && snakePos.y == applePos.y) {
+            
+            score++
+            scoreMarker.textContent = score
+
+            snakeSize++
+
+            newApple()
+        }
+
+        // Game Over: If Snake collides with his trail
+        for (var i=0; i<snakeTrail.length; i++) {
+            if (snakePos.x == snakeTrail[i].x && snakePos.y == snakeTrail[i].y) {
+                start() // Restart the game
+            }
+        }
+    
+        // Bounds
+        if (snakePos.x < 0) {
+            snakePos.x = cols - 1
+        }
+        else if (snakePos.x > cols - 1) {
+            snakePos.x = 0
+        }
+        if (snakePos.y < 0) {
+            snakePos.y = rows - 1
+        }
+        else if (snakePos.y > rows -1) {
+            snakePos.y = 0
+        }
+
+        // Update Trail 
+        snakeTrail.push({x: snakePos.x, y: snakePos.y})
+
+        while(snakeTrail.length>snakeSize) {
+            snakeTrail.shift()
+        } 
+    }
+
+    // ----------------
+    // APPLE FUNCTION
+    // ----------------
+   
+    function newApple() {
+
+        var x
+        var y
+        var isEmpty = true
+
+        do {
+            // Place an apple in a random position 
+            x = Math.floor(Math.random() * cols)
+            y = Math.floor(Math.random() * rows)
+
+            // Check if the snake trail is in that position
+            for (var i=0;i<snakeTrail.lenght;i++) {
+                if (snakeTrail[i] == {x: x, y: y}) {
+                    isEmpty = false
+                    break
+                }
+            }
+
+        } while(!isEmpty)
+
+        applePos = {x: x, y: y}
+    }
+
+    // ----------------
+    // PAINT FUNCTIONS
+    // ----------------
+
+    function paint() {
+        paintBg()
+        paintApple()
+        paintSnake()
+    }
+
+    function paintBg() {
+        ctx.fillStyle = "black"
+        ctx.fillRect(0,0,canvas.width,canvas.height)
+    }
+
+    function paintApple() {
+        ctx.fillStyle = "red"
+        ctx.fillRect(applePos.x * bs,applePos.y * bs,bs - 2,bs - 2)
+    }
+
+    function paintSnake() {
+        ctx.fillStyle = "green";
+        for (var i=0;i<snakeTrail.length;i++) {
+            ctx.fillRect(snakeTrail[i].x * bs,snakeTrail[i].y * bs,bs - 2,bs - 2);
+        }
+    }
+
+    // ----------------
+    // READ USER INPUT 
+    // ----------------
+   
+    document.addEventListener("keydown",keyPress);
+
+    function keyPress(evt) {
+
+        switch(evt.keyCode) {
+
+            case 37: // LEFT ARROW
+
+                if (snakeDir.x == 1 && snakeDir.y == 0) { return }
+
+                snakeDir = {x: -1, y: 0}
+                break
+
+            case 39: // RIGHT ARROW
+
+                if (snakeDir.x == -1 && snakeDir.y == 0) { return }
+
+                snakeDir = {x: 1, y: 0}
+                break
+
+            case 38: // UP ARROW
+
+                if (snakeDir.x == 0 && snakeDir.y == 1) { return }
+
+                snakeDir = {x: 0, y: -1}
+                break;
+
+            case 40: // DOWN ARROW
+
+                if (snakeDir.x == 0 && snakeDir.y == -1) { return }
+
+                snakeDir = {x: 0, y: 1}
+                break;
+        }
+    }
+</script>
+</html>
