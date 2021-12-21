@@ -30,20 +30,20 @@
     const SCORE_MARKER = document.getElementById("score")
     const CANVAS = document.getElementById("canvas");
 
-    // Block Size
-    const BLOCK_SIZE = 20
-
-    // Number of cols and rows 
-    const COLUMNS = CANVAS.width / BLOCK_SIZE
-    const ROWS    = CANVAS.height / BLOCK_SIZE
+    // Game Constants
+    const BLOCK_SIZE        = 20
+    const BLOCK_GAP         = 2
+    const COLUMNS           = CANVAS.width / BLOCK_SIZE
+    const ROWS              = CANVAS.height / BLOCK_SIZE
+    const UPDATE_RATE_MS    = 200
 
     // Create a context for drawing
     const CTX = CANVAS.getContext("2d")
 
     // Colors
     const BACKGROUND_COLOR = "black"
-    const APPLE_COLOR = "red"
-    const SNAKE_COLOR = "green"
+    const APPLE_COLOR      = "red"
+    const SNAKE_COLOR      = "green"
 
     // Keyboard codes
     const LEFT_KEY  = 37
@@ -82,7 +82,7 @@
     // INIT 
     // ----------------
 
-    setInterval(update,200)
+    setInterval(update,UPDATE_RATE_MS)
     start()
 
     // ----------------
@@ -99,12 +99,13 @@
 
         moveSnake()
 
+
         if (isGameOver()) {
             start()
             return
         } 
 
-        updateSnakeOutOfBoundsPosition()
+        updateSnakePositionIfItIsOutOfBounds()
         updateSnakeTrail()
 
         if (isSnakeEatingApple()) {
@@ -113,11 +114,15 @@
             spawnApple()
         }
 
-        paintGameElements()
+        paint()
     }
 
     function isGameOver() {
         return isSnakeCollidingWithItself()
+    }
+
+    function isFreePosition(position) {
+        return !isSnakeInPosition(position)
     }
 
     // ----------------
@@ -141,10 +146,10 @@
     }
 
     function isSnakeCollidingWithItself() {
-        return isSnakeTrailIn(snakeHeadPosition)
+        return isSnakeTrailInPosition(snakeHeadPosition)
     }
 
-    function updateSnakeOutOfBoundsPosition() {
+    function updateSnakePositionIfItIsOutOfBounds() {
 
         if (snakeHeadPosition.x < 0) {
             snakeHeadPosition.x = COLUMNS - 1
@@ -172,15 +177,15 @@
         } 
     }
 
-    function isSnakeIn(position) {
-        return isSnakeHeadIn(position) || isSnakeTrailIn(position)
+    function isSnakeInPosition(position) {
+        return isSnakeHeadInPosition(position) || isSnakeTrailInPosition(position)
     }
 
-    function isSnakeHeadIn(position) {
+    function isSnakeHeadInPosition(position) {
         return snakeHeadPosition.x == position.x && snakeHeadPosition.y == position.y 
     }
 
-    function isSnakeTrailIn(position) {
+    function isSnakeTrailInPosition(position) {
 
         for (var i=0;i<snakeTrail.length;i++) {
             if (snakeTrail[i].x == position.x && snakeTrail[i].y == position.y) {
@@ -229,19 +234,14 @@
         applePosition = position
     }
 
-    function isFreePosition(position) {
-        return !isSnakeIn(position)
-    }
-
     // ----------------
     // PAINT 
     // ----------------
 
-    function paintGameElements() {
+    function paint() {
         paintBackground()
         paintSnake()
         paintApple()
-
     }
 
     function paintBackground() {
@@ -251,13 +251,13 @@
 
     function paintApple() {
         CTX.fillStyle = APPLE_COLOR
-        CTX.fillRect(applePosition.x * BLOCK_SIZE,applePosition.y * BLOCK_SIZE,BLOCK_SIZE - 2,BLOCK_SIZE - 2)
+        CTX.fillRect(applePosition.x * BLOCK_SIZE,applePosition.y * BLOCK_SIZE,BLOCK_SIZE - BLOCK_GAP,BLOCK_SIZE - BLOCK_GAP)
     }
 
     function paintSnake() {
         CTX.fillStyle = SNAKE_COLOR
         for (var i=0;i<snakeTrail.length;i++) {
-            CTX.fillRect(snakeTrail[i].x * BLOCK_SIZE,snakeTrail[i].y * BLOCK_SIZE,BLOCK_SIZE - 2,BLOCK_SIZE - 2);
+            CTX.fillRect(snakeTrail[i].x * BLOCK_SIZE,snakeTrail[i].y * BLOCK_SIZE,BLOCK_SIZE - BLOCK_GAP,BLOCK_SIZE - BLOCK_GAP);
         }
     }
 
