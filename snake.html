@@ -28,11 +28,12 @@
 
     // HTML References 
     const SCORE_MARKER = document.getElementById("score")
-    const CANVAS = document.getElementById("canvas");
+    const CANVAS = document.getElementById("canvas")
 
     // Game Constants
     const BLOCK_SIZE        = 20
     const BLOCK_GAP         = 2
+    const BLOCK_WITH_GAP    = BLOCK_SIZE - BLOCK_GAP
     const COLUMNS           = CANVAS.width / BLOCK_SIZE
     const ROWS              = CANVAS.height / BLOCK_SIZE
     const UPDATE_RATE_MS    = 200
@@ -76,7 +77,7 @@
     var snakeSize
 
     // Apple 
-    var applePosition;
+    var applePosition
   
     // ----------------
     // INIT 
@@ -98,7 +99,6 @@
     function update() {
 
         moveSnake()
-
 
         if (isGameOver()) {
             start()
@@ -125,6 +125,10 @@
         return !isSnakeInPosition(position)
     }
 
+    function areTheSameXY(first, second) {
+        return (first.x == second.x && first.y == second.y)
+    }
+
     // ----------------
     // SNAKE 
     // ----------------
@@ -137,12 +141,12 @@
     }
 
     function moveSnake() {
-        snakeHeadPosition.x += snakeDirection.x;
-        snakeHeadPosition.y += snakeDirection.y;
+        snakeHeadPosition.x += snakeDirection.x
+        snakeHeadPosition.y += snakeDirection.y
     }
 
     function isSnakeEatingApple() {
-        return snakeHeadPosition.x == applePosition.x && snakeHeadPosition.y == applePosition.y
+        return areTheSameXY(snakeHeadPosition,applePosition)
     }
 
     function isSnakeCollidingWithItself() {
@@ -182,13 +186,12 @@
     }
 
     function isSnakeHeadInPosition(position) {
-        return snakeHeadPosition.x == position.x && snakeHeadPosition.y == position.y 
+        return areTheSameXY(snakeHeadPosition,position)
     }
 
     function isSnakeTrailInPosition(position) {
-
         for (var i=0;i<snakeTrail.length;i++) {
-            if (snakeTrail[i].x == position.x && snakeTrail[i].y == position.y) {
+            if (areTheSameXY(snakeTrail[i],position)) {
                 return true 
             }
         }
@@ -219,15 +222,14 @@
    
     function spawnApple() {
 
-        var x,y
         var position
 
         do {
 
-            x = Math.floor(Math.random() * COLUMNS)
-            y = Math.floor(Math.random() * ROWS)
+            var randomX = Math.floor(Math.random() * COLUMNS)
+            var randomY = Math.floor(Math.random() * ROWS)
 
-            position = { x: x, y: y }
+            position = { x: randomX, y: randomY }
 
         } while(!isFreePosition(position))
 
@@ -251,13 +253,18 @@
 
     function paintApple() {
         CTX.fillStyle = APPLE_COLOR
-        CTX.fillRect(applePosition.x * BLOCK_SIZE,applePosition.y * BLOCK_SIZE,BLOCK_SIZE - BLOCK_GAP,BLOCK_SIZE - BLOCK_GAP)
+        x = applePosition.x * BLOCK_SIZE
+        y = applePosition.y * BLOCK_SIZE
+        CTX.fillRect(x, y, BLOCK_WITH_GAP, BLOCK_WITH_GAP)
     }
 
     function paintSnake() {
         CTX.fillStyle = SNAKE_COLOR
         for (var i=0;i<snakeTrail.length;i++) {
-            CTX.fillRect(snakeTrail[i].x * BLOCK_SIZE,snakeTrail[i].y * BLOCK_SIZE,BLOCK_SIZE - BLOCK_GAP,BLOCK_SIZE - BLOCK_GAP);
+            x = snakeTrail[i].x * BLOCK_SIZE
+            y = snakeTrail[i].y * BLOCK_SIZE
+
+            CTX.fillRect(x, y, BLOCK_WITH_GAP, BLOCK_WITH_GAP)
         }
     }
 
@@ -265,7 +272,7 @@
     // READ USER INPUT 
     // ----------------
    
-    document.addEventListener("keydown",keyPress);
+    document.addEventListener("keydown",keyPress)
 
     function keyPress(evt) {
 
@@ -273,40 +280,36 @@
 
             case LEFT_KEY: 
 
-                if (!isSnakeCurrentDirection(RIGHT_DIRECTION)) {
+                if (!isCurrentSnakeDirection(RIGHT_DIRECTION)) {
                     snakeDirection = LEFT_DIRECTION
                 }
-
                 break
 
             case UP_KEY:
 
-                if (!isSnakeCurrentDirection(DOWN_DIRECTION)) {
+                if (!isCurrentSnakeDirection(DOWN_DIRECTION)) {
                     snakeDirection = UP_DIRECTION
                 }
-
                 break
 
             case RIGHT_KEY: 
 
-                if (!isSnakeCurrentDirection(LEFT_DIRECTION)) {
+                if (!isCurrentSnakeDirection(LEFT_DIRECTION)) {
                     snakeDirection = RIGHT_DIRECTION
                 }
-
                 break
 
             case DOWN_KEY:
 
-                if (!isSnakeCurrentDirection(UP_DIRECTION)) {
+                if (!isCurrentSnakeDirection(UP_DIRECTION)) {
                     snakeDirection = DOWN_DIRECTION
                 }
-
-                break;
+                break
         }
     }
 
-    function isSnakeCurrentDirection(direction) {
-        return (snakeDirection.x == direction.x && snakeDirection.y == direction.y)
+    function isCurrentSnakeDirection(direction) {
+        return areTheSameXY(snakeDirection,direction)
     }
 
     </script>
